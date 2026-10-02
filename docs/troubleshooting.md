@@ -1,86 +1,67 @@
-# BDA Troubleshooting Guide
+# Troubleshooting Guide
 
-## Common issues
+## SSH lockout
 
-### Proxmox is not detected
+If SSH access stops working:
+
+1. Log into the host through the local console or rescue shell.
+2. Verify the SSH daemon config.
+3. Confirm `sshd_config` still permits key-based login.
+4. Restore the backup file if needed:
+
+```bash
+cp /etc/ssh/sshd_config.bak /etc/ssh/sshd_config
+systemctl restart ssh
+```
+
+## Nginx test fails
+
+Run:
+
+```bash
+nginx -t
+```
+
+Then review any syntax errors in the relevant config under `/etc/nginx/sites-available/`.
+
+## Proxmox container creation fails
+
+Common causes:
+
+- missing LXC template
+- invalid CT ID collision
+- insufficient root disk or memory allocation
+- incorrect storage identifier
 
 Check:
 
 ```bash
-cat /etc/proxmox-release
-```
-
-If the file is missing, Proxmox is not installed properly.
-
-### LXC container creation fails
-
-Check that the template exists:
-
-```bash
-pveam list local
-```
-
-If not present, run:
-
-```bash
 pveam update
-pveam download local ubuntu-22.04-standard_22.04-1_amd64.tar.zst
-```
-
-### n8n fails to start
-
-Check the service:
-
-```bash
-systemctl status n8n
-journalctl -u n8n -n 50
-```
-
-### Nextcloud refuses to load
-
-Verify the container is running and the port is reachable:
-
-```bash
-pct status 102
-curl -I http://192.168.100.102
-```
-
-### Mail-in-a-Box not working
-
-Ensure:
-
-- port 25 is enabled in the network path
-- DNS records are configured
-- the container is privileged and has nested features enabled
-
-### SSL warnings in browser
-
-This is expected with self-signed certificates. For a valid certificate, use:
-
-```bash
-certbot --nginx -d yourdomain.com -d mail.yourdomain.com -d cloud.yourdomain.com -d automate.yourdomain.com -d adguard.yourdomain.com -d crm.yourdomain.com -d ai.yourdomain.com
-```
-
-## Logs to inspect
-
-- `/var/log/bda-health.log`
-- `/var/log/bda-backup.log`
-- `/var/log/bda-update.log`
-- `/var/log/bda-ssl-renew.log`
-- `/var/log/nginx/error.log`
-
-## Useful commands
-
-```bash
-# list containers
+pveam list local
 pct list
-
-# inspect a container
-pct exec 102 -- bash
-
-# health check
-/root/bda-rpu/scripts/maintenance/health-check.sh
-
-# backup
-/root/bda-rpu/scripts/maintenance/backup-all.sh
 ```
+
+## Backups fail
+
+Check logs:
+
+```bash
+cat /var/log/bda-backup.log
+```
+
+Verify:
+
+- Restic repository is initialized
+- repository password is correct
+- storage path is mounted and writable
+
+## Dashboard not loading
+
+Check:
+
+```bash
+ls -l /var/www/html
+systemctl status nginx
+```
+
+Ensure the HTML was copied and permissions are correct.

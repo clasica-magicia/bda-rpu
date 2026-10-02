@@ -1,71 +1,44 @@
-# BDA Configuration Guide
+# Configuration Guide
 
 ## Network layout
 
-The Proxmox host uses a Linux bridge for internal LXC networking:
+The default BDA network uses a bridge interface named `vmbr0` and a private range like `192.168.100.0/24`.
 
-- Physical interface: detected automatically
-- Bridge: vmbr0
-- Internal network: 192.168.100.0/24
+Example:
 
-## Container map
+- Host: `192.168.100.1`
+- CT 101: `192.168.100.101`
+- CT 102: `192.168.100.102`
+- CT 103: `192.168.100.103`
+- CT 104: `192.168.100.104`
+- CT 105: `192.168.100.105`
+- CT 106: `192.168.100.106`
+- CT 107: `192.168.100.107`
 
-| CT ID | Service | IP |
-| --- | --- | --- |
-| 101 | Mail Server | 192.168.100.101 |
-| 102 | Nextcloud | 192.168.100.102 |
-| 103 | n8n | 192.168.100.103 |
-| 104 | AdGuard Home | 192.168.100.104 |
-| 105 | Restic Backup | 192.168.100.105 |
-| 106 | SuiteCRM | 192.168.100.106 |
-| 107 | Ollama/Open WebUI | 192.168.100.107 |
+## Nginx configuration
 
-## DNS recommendations
+The repository ships prebuilt Nginx virtual host files under `configs/nginx/`.
+Each file contains placeholders handled by the installer and should be adjusted for a real domain.
 
-If you have a domain name, point these records to the public IP:
+Example values to replace:
 
-- yourdomain.com
-- mail.yourdomain.com
-- cloud.yourdomain.com
-- automate.yourdomain.com
-- adguard.yourdomain.com
-- crm.yourdomain.com
-- ai.yourdomain.com
+- `yourdomain.com`
+- `example.com`
+- internal service ports
 
-For Mail-in-a-Box, also configure:
+## Security settings
 
-- MX
-- SPF
-- DKIM
-- DMARC
+Recommended defaults:
 
-## Reverse proxy
+- Disable password SSH authentication
+- Keep key-based SSH access only
+- Limit Proxmox web UI access behind trusted IP ranges or VPN
+- Enable fail2ban and automatic security patches
+- Keep backups encrypted and offsite if possible
 
-The repository includes Nginx vhost definitions under `configs/nginx/`.
+## Container and service notes
 
-Each config file is intended to be copied into `/etc/nginx/sites-available` and symlinked in `/etc/nginx/sites-enabled`.
-
-## TLS
-
-- Default: self-signed certificate at `/etc/ssl/certs/bda.crt`
-- Production: use Let's Encrypt with a real domain
-
-## Maintenance tasks
-
-The cron jobs installed by the repo do the following:
-
-- hourly health checks
-- nightly backup
-- weekly update pass
-- daily SSL renewal check
-
-## Security hardening
-
-The default hardening script:
-
-- disables password SSH login
-- generates an SSH keypair
-- enables the Proxmox firewall
-- configures Fail2Ban
-- enables unattended upgrades
-- installs rkhunter and logwatch
+- Mail server should be treated as the authoritative host for SMTP and MX traffic.
+- Nextcloud and SuiteCRM should be exposed only through proper TLS and trusted DNS.
+- AdGuard Home should be placed on the network as the DNS resolver for local devices.
+- Ollama should remain local-only unless you explicitly expose it externally.

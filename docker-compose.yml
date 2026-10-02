@@ -1,11 +1,79 @@
-version: "3.9"
+version: '3.9'
 
 services:
   dashboard:
     image: nginx:alpine
     container_name: bda-dashboard
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./web:/usr/share/nginx/html:ro
+      - ./configs/nginx:/etc/nginx/conf.d:ro
     restart: unless-stopped
+
+  adguard:
+    image: adguard/adguardhome:latest
+    container_name: bda-adguard
+    ports:
+      - "3000:3000"
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - adguard_data:/opt/adguardhome/conf
+      - adguard_work:/opt/adguardhome/work
+    restart: unless-stopped
+
+  nextcloud:
+    image: nextcloud:latest
+    container_name: bda-nextcloud
+    ports:
+      - "8081:80"
+    environment:
+      NEXTCLOUD_TRUSTED_DOMAINS: "localhost"
+    volumes:
+      - nextcloud_data:/var/www/html
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: bda-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_HOST: "localhost"
+      N8N_PORT: "5678"
+      WEBHOOK_URL: "http://localhost:5678/"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: bda-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: bda-openwebui
+    ports:
+      - "8080:8080"
+    environment:
+      OLLAMA_BASE_URL: "http://ollama:11434"
+    volumes:
+      - openwebui_data:/app/backend/data
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  adguard_data:
+  adguard_work:
+  nextcloud_data:
+  n8n_data:
+  ollama_data:
+  openwebui_data:

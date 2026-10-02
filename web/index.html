@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BDA Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Business Digital Assistant</p>
+          <h1>Operations Dashboard</h1>
+        </div>
+        <div class="status-pill">Online</div>
+      </header>
+
+      <main class="grid">
+        <section class="card spotlight">
+          <h2>System status</h2>
+          <ul>
+            <li><strong>Host:</strong> yourdomain.com</li>
+            <li><strong>Public IP:</strong> PUBLIC_IP_PLACEHOLDER</li>
+            <li><strong>Services:</strong> 7 core modules</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Core services</h2>
+          <div class="link-list">
+            <a href="https://mail.yourdomain.com">Mail Server</a>
+            <a href="https://cloud.yourdomain.com">Nextcloud</a>
+            <a href="https://automate.yourdomain.com">n8n</a>
+            <a href="https://adguard.yourdomain.com">AdGuard</a>
+            <a href="https://crm.yourdomain.com">SuiteCRM</a>
+            <a href="https://ai.yourdomain.com">Open WebUI</a>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Direct access</h2>
+          <div class="link-list">
+            <a href="https://192.168.100.101">Mail</a>
+            <a href="https://192.168.100.102">Nextcloud</a>
+            <a href="http://192.168.100.103:5678">n8n</a>
+            <a href="http://192.168.100.104:3000">AdGuard</a>
+            <a href="http://192.168.100.106">CRM</a>
+            <a href="http://192.168.100.107:8080">Open WebUI</a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>

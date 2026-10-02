@@ -1,67 +1,69 @@
-# BDA Installation Guide
+# Installation Guide
 
-## Prerequisites
+## 1. Hardware and OS prerequisites
 
-- Proxmox VE installed and running
-- Root SSH access to the Proxmox host
-- Internet connectivity for package downloads
-- Optional: a public domain and open ports for email/HTTPS
+Before running the BDA provisioning scripts, check that you have:
 
-## Step-by-step
+- A Proxmox VE host or a Debian/Ubuntu system compatible with the installer
+- At least 16 GB RAM and 500 GB SSD/HDD storage
+- A valid domain name (recommended for mail and SSL)
+- Network access with a static or DHCP-managed IP range
 
-### 1. Install Proxmox VE
+## 2. Install Proxmox VE
 
-1. Download Proxmox VE from the official site.
-2. Flash it to a USB drive.
-3. Boot the target mini PC from that USB and install Proxmox.
-4. Log in to the web UI at https://YOUR_IP:8006.
+1. Download the Proxmox ISO from the official project website.
+2. Create a bootable USB and install Proxmox on the host machine.
+3. Set a strong root password.
+4. Ensure the network bridge `vmbr0` is available and connected to the correct NIC.
 
-### 2. Prepare the host
-
-SSH into the Proxmox host as root:
+## 3. Clone this repository
 
 ```bash
-ssh root@YOUR_PROXMOX_IP
-```
-
-Then run:
-
-```bash
-cd /root
-git clone https://github.com/clasica-magicia/bda-rpu.git
+git clone https://github.com/clasica-magicia/bda-rpu.git /root/bda-rpu
 cd /root/bda-rpu
 chmod +x install.sh
+```
+
+## 4. Run the installer
+
+```bash
 ./install.sh
 ```
 
-### 3. Follow the prompts
+The installer will prompt for:
 
-The installer asks for:
+- Domain name
+- Public IP address
+- Admin email
+- Whether to deploy AI services
 
-- domain name
-- public IP
-- admin email
-- whether to deploy the AI stack
+## 5. Post-install validation
 
-### 4. Post-installation steps
+After deployment, validate each service:
 
-- Change all default passwords.
-- Set up DNS A-records and MX records.
-- Ensure port 25 is open for Mail-in-a-Box.
-- Replace self-signed certificates with valid Let's Encrypt certificates when possible.
-- Test backups and health status.
+- https://mail.example.com
+- https://cloud.example.com
+- http://192.168.100.103:5678
+- http://192.168.100.104:3000
+- http://192.168.100.106
+- http://192.168.100.107:8080
 
-## Quick reference
+## 6. DNS and certificates
 
-| Service | Internal URL |
-| --- | --- |
-| Mail Server | https://192.168.100.101 |
-| Nextcloud | http://192.168.100.102 |
-| n8n | http://192.168.100.103:5678 |
-| AdGuard | http://192.168.100.104:3000 |
-| SuiteCRM | http://192.168.100.106 |
-| Open WebUI | http://192.168.100.107:8080 |
+If you are using a public domain, configure these records:
 
-## Notes
+- A / AAAA records for the host
+- MX record for mail traffic
+- SPF, DKIM, DMARC for mail delivery
+- reverse proxy and TLS entries for the web applications
 
-This installation should be treated as a production baseline and reviewed before exposure to the public internet.
+## 7. Maintenance
+
+The installer creates cron jobs for:
+
+- health checks
+- backups
+- updates
+- SSL renewal
+
+Review logs in `/var/log` for any failures.
