@@ -1,0 +1,136 @@
+# Business Digital Assistant (BDA)
+
+A complete self-hosted digital ecosystem for small businesses, replacing expensive SaaS subscriptions with a local stack built on Proxmox, Ubuntu LXC containers, and open-source software.
+
+## Features
+
+- Secure email with Mail-in-a-Box
+- File storage and collaboration with Nextcloud
+- Workflow automation with n8n
+- CRM with SuiteCRM
+- Network-wide ad blocking with AdGuard Home
+- Encrypted backup automation with Restic
+- Local AI with Ollama + Open WebUI
+- Monitoring and system maintenance dashboards
+
+## Hardware blueprint (under $500)
+
+| Component | Recommendation | Est. cost |
+| --- | --- | --- |
+| Mini PC | Dell Optiplex 7080 / Beelink SER5 / Lenovo ThinkCentre | $150 |
+| RAM | 2x16 GB DDR4 (32 GB total) | $40 |
+| Storage | 1 TB NVMe + 2 TB HDD | $80 |
+| Router | Ubiquiti ER-X or MikroTik hAP | $30 |
+| Switch | TP-Link 5-Port Gigabit | $20 |
+| UPS | CyberPower 600 VA | $50 |
+| Misc | Cables, SSD mount | $30 |
+| Total |  | $400-$500 |
+
+## Canonical service map
+
+| CT ID | Service | IP | Port |
+| --- | --- | --- | --- |
+| 101 | Mail Server | 192.168.100.101 | 443 |
+| 102 | Nextcloud | 192.168.100.102 | 443 |
+| 103 | n8n | 192.168.100.103 | 5678 |
+| 104 | AdGuard Home | 192.168.100.104 | 3000 / 80 |
+| 105 | Restic Backup | 192.168.100.105 | — |
+| 106 | CRM (SuiteCRM) | 192.168.100.106 | 80/443 |
+| 107 | Ollama + Open WebUI | 192.168.100.107 | 11434 / 8080 |
+
+## Requirements
+
+- Proxmox VE installed on the host
+- Root access to the Proxmox node
+- Internet access for downloading templates and packages
+- Optional: a public domain for production TLS and email
+
+## Quick start
+
+```bash
+# SSH into your Proxmox host as root
+# Clone the repo
+cd /root
+git clone https://github.com/clasica-magicia/bda-rpu.git
+cd /root/bda-rpu
+chmod +x install.sh
+./install.sh
+```
+
+The installer will:
+
+1. Harden the Proxmox host
+2. Configure the network bridge
+3. Download the Ubuntu 22.04 LXC template
+4. Deploy each service in sequence
+5. Generate certificates
+6. Configure the Nginx reverse proxy
+7. Install maintenance cron jobs
+8. Deploy the status dashboard
+
+## Repository layout
+
+```text
+bda-rpu/
+├── README.md
+├── install.sh
+├── docs/
+│   ├── installation.md
+│   ├── configuration.md
+│   └── troubleshooting.md
+├── scripts/
+│   ├── proxmox-setup/
+│   │   ├── create-network.sh
+│   │   └── harden-security.sh
+│   ├── services/
+│   │   ├── deploy-mailbox.sh
+│   │   ├── deploy-nextcloud.sh
+│   │   ├── deploy-n8n.sh
+│   │   ├── deploy-adguard.sh
+│   │   ├── deploy-restic.sh
+│   │   ├── deploy-crm.sh
+│   │   └── deploy-ollama.sh
+│   ├── maintenance/
+│   │   ├── health-check.sh
+│   │   ├── backup-all.sh
+│   │   └── update-all.sh
+│   └── utils/
+│       ├── generate-ssl.sh
+│       ├── renew-ssl.sh
+│       └── setup-fail2ban.sh
+├── configs/
+│   └── nginx/
+│       ├── bda.conf
+│       ├── mail.conf
+│       ├── nextcloud.conf
+│       ├── n8n.conf
+│       ├── adguard.conf
+│       ├── crm.conf
+│       └── ollama.conf
+├── web/
+│   ├── index.html
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── app.js
+├── .gitignore
+├── LICENSE
+└── docker-compose.yml
+```
+
+## Security notes
+
+- Change all default passwords before exposing services to the internet.
+- Use real DNS and Let's Encrypt if possible.
+- Mail-in-a-Box requires port 25 and proper MX/SPF/DKIM/DMARC configuration.
+- The default generated certificates are self-signed unless a valid domain is configured.
+
+## Links
+
+- Repository: https://github.com/clasica-magicia/bda-rpu
+- Documentation: docs/installation.md
+- Troubleshooting: docs/troubleshooting.md
+
+## License
+
+MIT

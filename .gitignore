@@ -1,0 +1,10 @@
+# .gitignore
+
+*.log
+*.tmp
+*.swp
+*.bak
+.DS_Store
+__pycache__/
+node_modules/
+.vscode/
